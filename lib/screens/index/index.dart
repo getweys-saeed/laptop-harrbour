@@ -78,11 +78,11 @@ class IndexPage extends StatelessWidget {
 
               // Discount Cards
               SizedBox(
-                height: 230,
+                height: 200,
+                width: double.infinity, // Add width constraint
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount:
-                      5, // You may want to test this with different item counts or actual data
+                  itemCount: 5,
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.only(right: 15),
@@ -93,65 +93,65 @@ class IndexPage extends StatelessWidget {
                         ),
                         elevation: 8,
                         shadowColor: Colors.black45,
-                        child: Column(
-                          children: [
-                            // Card Text
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                "10% Off During Ramadan", // Example text
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            // Image Section
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: SizedBox(
-                                width: 200,
-                                height:
-                                    100, // Adjust height to avoid image stretching
-                                child: Image.asset(
-                                  AssetPath
-                                      .appLogo, // Ensure this is the correct path
-                                  fit: BoxFit.cover, width: 300,
-                                ),
-                              ),
-                            ),
-                            // Button Section
-                            Padding(
-                              padding:
-                                  const EdgeInsets.all(8.0), // Reduced padding
-                              child: ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.orangeAccent,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 8, // Reduced vertical padding
-                                    horizontal:
-                                        12, // Optionally add horizontal padding
-                                  ),
-                                ),
-                                child: const Text(
-                                  "Shop Now",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12, // Reduced font size
-                                    fontWeight: FontWeight
-                                        .w600, // Adjust font weight if needed
+                        child: SizedBox(
+                          width: 250, // Set a fixed width for the card
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SizedBox(
+                                  width: 100,
+                                  height: 100,
+                                  child: Image.asset(
+                                    AssetPath.homeLogo,
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 4.0),
+                                      child: const Text(
+                                        "10% Off During Ramadan",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 4.0),
+                                      child: ElevatedButton(
+                                        onPressed: () {},
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.orangeAccent,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Shop Now",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -261,14 +261,14 @@ class IndexPage extends StatelessWidget {
                                       horizontal: 4,
                                       vertical: 2), // Padding for the text
                                   decoration: BoxDecoration(
-                                    color: Colors.red, // Background color
+                                    color: Colors.white, // Background color
                                     borderRadius: BorderRadius.circular(
                                         8), // Optional: rounded corners
                                   ),
                                   child: Text(
                                     "Sale 50%",
                                     style: TextStyle(
-                                      color: Colors.white, // Text color
+                                      color: Colors.grey, // Text color
                                       fontSize: 12,
                                       fontWeight: FontWeight
                                           .bold, // Optional: for emphasis
@@ -325,7 +325,7 @@ class IndexPage extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 12, // Smaller font size
                                 fontWeight: FontWeight
-                                    .w800, // Regular weight for better readability
+                                    .w500, // Regular weight for better readability
                                 color:
                                     Colors.black87, // Darker text for contrast
                               ),
@@ -334,13 +334,18 @@ class IndexPage extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Icon(
-                                  Icons.star,
-                                  color: Colors.yellow,
+                                Text(
+                                  "Rs 499.99",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12),
                                 ),
-                                Icon(
-                                  Icons.star,
-                                  color: Colors.yellow,
+                                Text(
+                                  "Rs 499.99",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      decoration: TextDecoration.lineThrough,
+                                      fontSize: 12),
                                 ),
                               ],
                             ),
