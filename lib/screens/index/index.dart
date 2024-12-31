@@ -53,9 +53,9 @@ class IndexPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: SingleChildScrollView(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               // "Hello Admin" text
               Row(
                 children: [
@@ -161,6 +161,7 @@ class IndexPage extends StatelessWidget {
               SizedBox(
                 height: 10,
               ),
+              // Categories
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -176,6 +177,7 @@ class IndexPage extends StatelessWidget {
               SizedBox(
                 height: 10,
               ),
+              // List Of Categories
               SizedBox(
                 height: 30,
                 child: Expanded(
@@ -217,7 +219,139 @@ class IndexPage extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
+              SizedBox(height: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // 2 items per row
+                      crossAxisSpacing: 10, // Spacing between items
+                      mainAxisSpacing: 10, // Spacing between items
+                      childAspectRatio: 0.8, // Adjusted for smaller card size
+                    ),
+                    itemCount: 10, // Total number of items
+                    itemBuilder: (context, index) {
+                      return Container(
+                        padding: EdgeInsets.all(
+                            6), // Reduced padding for smaller cards
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                              12), // Slightly smaller radius
+                          color: Color.fromARGB(
+                              255, 240, 240, 240), // Background color
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.shade300, // Subtle shadow
+                              blurRadius: 5,
+                              offset: Offset(0, 3), // Shadow with slight offset
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                      vertical: 2), // Padding for the text
+                                  decoration: BoxDecoration(
+                                    color: Colors.red, // Background color
+                                    borderRadius: BorderRadius.circular(
+                                        8), // Optional: rounded corners
+                                  ),
+                                  child: Text(
+                                    "Sale 50%",
+                                    style: TextStyle(
+                                      color: Colors.white, // Text color
+                                      fontSize: 12,
+                                      fontWeight: FontWeight
+                                          .bold, // Optional: for emphasis
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.all(
+                                      2), // Small padding to ensure the icon doesn't touch the border
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape
+                                        .circle, // Makes the container circular
+                                    color: Colors
+                                        .transparent, // Transparent background (optional)
+                                    border: Border.all(
+                                      color: Color.fromARGB(
+                                          255, 162, 162, 162), // Border color
+                                      width: 1, // Border width
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.favorite,
+                                    size: 16, // Icon size
+                                    color: Color.fromARGB(
+                                        255, 162, 162, 162), // Icon color
+                                  ),
+                                )
+                              ],
+                            ),
+                            SizedBox(
+                                height:
+                                    8), // Added space between icons and image
+                            Container(
+                              width: double
+                                  .infinity, // Ensure the image takes up full width
+                              height: 90, // Reduced height of the card
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                    10), // Rounded image corners
+                                child: Image.asset(
+                                  AssetPath.appLogo,
+                                  width: double.infinity,
+                                  height:
+                                      80, // Set the height of the image to make it taller
+                                  fit: BoxFit
+                                      .cover, // Ensures the image covers the container
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 8), // Space between image and text
+                            Text(
+                              overflow: TextOverflow.ellipsis,
+                              "Company Logo Represented",
+                              style: TextStyle(
+                                fontSize: 12, // Smaller font size
+                                fontWeight: FontWeight
+                                    .w800, // Regular weight for better readability
+                                color:
+                                    Colors.black87, // Darker text for contrast
+                              ),
+                            ),
+                            Spacer(), // Pushes the rating icons to the bottom
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.yellow,
+                                ),
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.yellow,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              )
+            ]),
           ),
         ),
       ),
