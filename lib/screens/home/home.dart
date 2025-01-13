@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:laptop_harbour/config/colors.dart';
 import 'package:laptop_harbour/globals/asset_path.dart';
 import 'package:laptop_harbour/screens/login/login.dart';
-import 'package:laptop_harbour/screens/profile/profile.dart';
-import 'package:laptop_harbour/screens/splash/splash_screen.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -60,7 +58,7 @@ class HomePage extends StatelessWidget {
                 foregroundColor: WidgetStatePropertyAll(Colors.white)),
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ProfileWidget()));
+                  MaterialPageRoute(builder: (context) => LoginPage()));
             },
             child: const Text(
               "Get Started",

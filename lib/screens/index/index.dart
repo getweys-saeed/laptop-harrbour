@@ -1,186 +1,147 @@
 import 'package:flutter/material.dart';
 import 'package:laptop_harbour/config/colors.dart';
 import 'package:laptop_harbour/globals/asset_path.dart';
+import 'package:laptop_harbour/screens/cart/cart.dart';
+import 'package:laptop_harbour/screens/shop/shop.dart';
+import 'package:laptop_harbour/widgets/main_screen.dart';
 
 class IndexPage extends StatelessWidget {
   const IndexPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final int _selectedIndex = 0;
-
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(70.0),
-        child: Padding(
-          padding: const EdgeInsets.only(top: 20, left: 10, right: 10),
-          child: AppBar(
-            backgroundColor: Colors.transparent, // Transparent background
-            elevation: 0, // No shadow
-            leading: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(
-                      255, 236, 236, 236), // Background color
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.menu, color: Colors.black, size: 28.0),
-                ),
-              ),
-            ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(
-                        255, 231, 231, 231), // Background color
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.search, color: Colors.black, size: 28.0),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: SafeArea(
           child: SingleChildScrollView(
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              // "Hello Admin" text
-              Row(
-                children: [
-                  Text(
-                    "Hello Admin ",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  Icon(
-                    Icons.waving_hand_outlined,
-                    color: primaryColor,
-                    size: 20,
-                  ),
-                ],
-              ),
-              Text(
-                "Let's Start Shopping!",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
-              ),
-              SizedBox(height: 5), // Space between text and cards
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // "Hello Admin" text
+                Row(
+                  children: [
+                    Text(
+                      "Hello Admin ",
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    Icon(
+                      Icons.waving_hand_outlined,
+                      color: primaryColor,
+                      size: 20,
+                    ),
+                  ],
+                ),
+                const Text(
+                  "Let's Start Shopping!",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
+                ),
+                const SizedBox(height: 5), // Space between text and cards
 
-              // Discount Cards
-              SizedBox(
-                height: 200,
-                width: double.infinity, // Add width constraint
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 15),
-                      child: Card(
-                        margin: const EdgeInsets.symmetric(vertical: 8.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                        ),
-                        elevation: 8,
-                        shadowColor: Colors.black45,
-                        child: SizedBox(
-                          width: 250, // Set a fixed width for the card
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: SizedBox(
-                                  width: 100,
-                                  height: 100,
-                                  child: Image.asset(
-                                    AssetPath.homeLogo,
-                                    fit: BoxFit.cover,
+                // Discount Cards
+                SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 5,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 15),
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                          elevation: 8,
+                          shadowColor: Colors.black45,
+                          child: SizedBox(
+                            width: 250, // Fixed width for the card
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: SizedBox(
+                                    width: 100,
+                                    height: 100,
+                                    child: Image.asset(
+                                      AssetPath.homeLogo,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4.0),
-                                      child: const Text(
-                                        "10% Off During Ramadan",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 4.0),
-                                      child: ElevatedButton(
-                                        onPressed: () {},
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.orangeAccent,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          "Shop Now",
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 4.0),
+                                        child: Text(
+                                          "10% Off During Ramadan",
                                           style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 4.0),
+                                        child: ElevatedButton(
+                                          onPressed: () {},
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                Colors.orangeAccent,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            "Shop Now",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              // Categories
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Categories"),
-                  GestureDetector(
-                    child: Text(
-                      "See All ",
-                      style: TextStyle(color: primaryColor),
+
+                const SizedBox(height: 10),
+                // Categories
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Categories"),
+                    GestureDetector(
+                      child: Text(
+                        "See All ",
+                        style: TextStyle(color: primaryColor),
+                      ),
                     ),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              // List Of Categories
-              SizedBox(
-                height: 30,
-                child: Expanded(
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+                // List of Categories
+                SizedBox(
+                  height: 30,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: 10,
@@ -190,27 +151,21 @@ class IndexPage extends StatelessWidget {
                         child: SizedBox(
                           width: 40,
                           height: 40,
-                          child: Material(
-                            color: Colors
-                                .transparent, // Make it transparent if needed
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                minimumSize:
-                                    Size.zero, // Removes default minimum size
-                                padding:
-                                    EdgeInsets.zero, // Tightens button layout
-                                backgroundColor: const Color.fromARGB(
-                                    255, 234, 234, 234), // Set background color
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
+                          child: ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: Size.zero,
+                              padding: EdgeInsets.zero,
+                              backgroundColor: const Color.fromARGB(
+                                  255, 234, 234, 234),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
                               ),
-                              child: Icon(
-                                Icons.laptop,
-                                size: 24,
-                                color: Colors.black, // Set icon color
-                              ),
+                            ),
+                            child: const Icon(
+                              Icons.laptop,
+                              size: 24,
+                              color: Colors.black,
                             ),
                           ),
                         ),
@@ -218,162 +173,130 @@ class IndexPage extends StatelessWidget {
                     },
                   ),
                 ),
-              ),
-              SizedBox(height: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // 2 items per row
-                      crossAxisSpacing: 10, // Spacing between items
-                      mainAxisSpacing: 10, // Spacing between items
-                      childAspectRatio: 0.8, // Adjusted for smaller card size
-                    ),
-                    itemCount: 10, // Total number of items
-                    itemBuilder: (context, index) {
-                      return Container(
-                        padding: EdgeInsets.all(
-                            6), // Reduced padding for smaller cards
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(
-                              12), // Slightly smaller radius
-                          color: Color.fromARGB(
-                              255, 240, 240, 240), // Background color
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.shade300, // Subtle shadow
-                              blurRadius: 5,
-                              offset: Offset(0, 3), // Shadow with slight offset
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                      vertical: 2), // Padding for the text
-                                  decoration: BoxDecoration(
-                                    color: Colors.white, // Background color
-                                    borderRadius: BorderRadius.circular(
-                                        8), // Optional: rounded corners
-                                  ),
-                                  child: Text(
-                                    "Sale 50%",
-                                    style: TextStyle(
-                                      color: Colors.grey, // Text color
-                                      fontSize: 12,
-                                      fontWeight: FontWeight
-                                          .bold, // Optional: for emphasis
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.all(
-                                      2), // Small padding to ensure the icon doesn't touch the border
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape
-                                        .circle, // Makes the container circular
-                                    color: Colors
-                                        .transparent, // Transparent background (optional)
-                                    border: Border.all(
-                                      color: Color.fromARGB(
-                                          255, 162, 162, 162), // Border color
-                                      width: 1, // Border width
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    Icons.favorite,
-                                    size: 16, // Icon size
-                                    color: Color.fromARGB(
-                                        255, 162, 162, 162), // Icon color
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                                height:
-                                    8), // Added space between icons and image
-                            Container(
-                              width: double
-                                  .infinity, // Ensure the image takes up full width
-                              height: 90, // Reduced height of the card
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(
-                                    10), // Rounded image corners
-                                child: Image.asset(
-                                  AssetPath.appLogo,
-                                  width: double.infinity,
-                                  height:
-                                      80, // Set the height of the image to make it taller
-                                  fit: BoxFit
-                                      .cover, // Ensures the image covers the container
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 8), // Space between image and text
-                            Text(
-                              overflow: TextOverflow.ellipsis,
-                              "Company Logo Represented",
-                              style: TextStyle(
-                                fontSize: 12, // Smaller font size
-                                fontWeight: FontWeight
-                                    .w500, // Regular weight for better readability
-                                color:
-                                    Colors.black87, // Darker text for contrast
-                              ),
-                            ),
-                            Spacer(), // Pushes the rating icons to the bottom
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Rs 499.99",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12),
-                                ),
-                                Text(
-                                  "Rs 499.99",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      decoration: TextDecoration.lineThrough,
-                                      fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+
+                const SizedBox(height: 10),
+
+                // Product Grid
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // 2 items per row
+                    crossAxisSpacing: 10, // Spacing between items
+                    mainAxisSpacing: 10, // Spacing between items
+                    childAspectRatio: 0.8,
                   ),
-                ],
-              )
-            ]),
+                  itemCount: 10,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: const Color.fromARGB(255, 240, 240, 240),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade300,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Text(
+                                  "Sale 50%",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: const Color.fromARGB(
+                                        255, 162, 162, 162),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.favorite,
+                                  size: 16,
+                                  color: Color.fromARGB(255, 162, 162, 162),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            height: 90,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.asset(
+                                AssetPath.appLogo,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              Text(
+                                "Rs 499.99",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 12),
+                              ),
+                              Text(
+                                "Rs 499.99",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    decoration: TextDecoration.lineThrough,
+                                    fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.orange,
-        unselectedItemColor: Colors.black45,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.favorite), label: 'Favourite'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart), label: 'Cart'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
+
+      // Floating Action Button
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.orange,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ShoppingPage()),
+          );
+        },
+        child: const Icon(Icons.shopping_bag_outlined, color: Colors.white),
       ),
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+      // Bottom Navigation Bar
+      bottomNavigationBar: const MainScreen(),
     );
   }
 }
