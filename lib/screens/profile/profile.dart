@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:laptop_harbour/globals/asset_path.dart';
+import 'package:laptop_harbour/screens/login/login.dart';
 import 'package:laptop_harbour/screens/order_tracking/order_trakcing.dart';
 import 'package:laptop_harbour/screens/profile/change_profile.dart';
 import 'package:laptop_harbour/screens/profile/chnage_password.dart';
@@ -57,39 +59,16 @@ class ProfileWidget extends StatelessWidget {
                 final String email = userData['email'] ?? 'No Email';
                 final String profileImage =
                     userData['photo'] ?? userData['photo'];
-                print(base + profileImage);
-                print("NAME: $name");
-                print("NAME: $profileImage");
-                // print("img"+profileImage);
 
                 return Column(
                   children: [
-                    // Container(
-                    //   height: 50,
-                    //   width: 50,
-                    //   decoration: BoxDecoration(
-                    //     color: Colors.red,
-                    //     image: DecorationImage(
-                    //       fit: BoxFit.contain,
-                    //       image: NetworkImage("$base$profileImage"),
-                    //     ),
-                    //   ),
-                    // ),
-                    // Container(
-                    //   height: 50,
-                    //   width: 50,
-                    //   color: Colors.amber,
-                    // ),
                     Image.network(
-                       "$base$profileImage",
-                      // "http://127.0.0.1:8000/storage/users/1736697513_download.jpg",
-                      // "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeYNuL2S2jV1JoJd3SMcB9U7XSME2JjTI-zQ&s",
+                      "$base$profileImage",
                       height: 50,
                       width: 50,
-                      // errorBuilder: (context, error, stackTrace) {
-                      //   return Icon(Icons
-                      //       .error); // Display an error icon or a placeholder image
-                      // },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.error);
+                      },
                     ),
                     const SizedBox(height: 10),
                     Text(
@@ -115,7 +94,7 @@ class ProfileWidget extends StatelessWidget {
                       context,
                       "Change Password",
                       Icons.lock_clock_outlined,
-                      const ChnagePassword(),
+                      ChangePassword(),
                     ),
                     const SizedBox(height: 8),
                     // Track Order
@@ -132,12 +111,54 @@ class ProfileWidget extends StatelessWidget {
                       "Logout",
                       Icons.logout,
                       null,
-                      onTap: () async {
-                        final storage = FlutterSecureStorage();
-                        await storage.delete(key: 'auth_token');
-                        Navigator.pushReplacementNamed(context,
-                            '/login'); // Replace with actual login route
-                      },
+                     // Updated Logout onTap method
+onTap: () async {
+  final storage = FlutterSecureStorage();
+  const url = 'http://127.0.0.1:8000/api/logout'; // Replace with your API logout endpoint
+
+  try {
+    // Fetch token from secure storage
+    final token = await storage.read(key: 'auth_token');
+
+    // If the token exists, make a request to log out the user from the backend
+    if (token != null) {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Successful logout from the backend, delete token from secure storage
+        await storage.delete(key: 'auth_token');
+        // Close the app after logging out
+    
+
+        // After popping, push the login page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else {
+        // Handle failure in logout request
+        print('Failed to logout from server. Status code: ${response.statusCode}');
+        // Optionally show a message to the user that logout failed
+      }
+    } else {
+      // If there's no token, just close the app
+          Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+    }
+  } catch (e) {
+    // Handle any errors that might occur while calling the API
+    print('Error logging out: $e');
+    // Optionally show an error message to the user
+  }
+},
+
                     ),
                   ],
                 );

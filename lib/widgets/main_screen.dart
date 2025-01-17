@@ -3,7 +3,6 @@ import 'package:laptop_harbour/screens/cart/cart.dart';
 import 'package:laptop_harbour/screens/fravourite/favourate.dart';
 import 'package:laptop_harbour/screens/index/index.dart';
 import 'package:laptop_harbour/screens/profile/profile.dart';
-import 'package:laptop_harbour/screens/shop/shop.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({Key? key}) : super(key: key);

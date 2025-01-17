@@ -1,160 +1,356 @@
 import 'package:flutter/material.dart';
-import 'package:laptop_harbour/globals/asset_path.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class CheckoutPage extends StatelessWidget {
-  const CheckoutPage({super.key});
+class CheckoutPage extends StatefulWidget {
+  final List<dynamic> cartItems;
+  final double totalAmount;
+
+  CheckoutPage({required this.cartItems, required this.totalAmount});
+
+  @override
+  State<CheckoutPage> createState() => _CheckoutPageState();
+}
+
+class _CheckoutPageState extends State<CheckoutPage> {
+  final FlutterSecureStorage storage = FlutterSecureStorage();
+  final _formKey = GlobalKey<FormState>();
+
+  // Form Fields
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+    final TextEditingController countryController = TextEditingController();
+  final TextEditingController zipController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController couponController = TextEditingController();
+  String? selectedShippingMethod;
+  String? selectedPaymentMethod = "Credit Card";
+
+  Future<String?> getToken() async {
+    return await storage.read(key: 'auth_token');
+  }
+
+  Future<void> submitCheckout() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final token = await getToken();
+
+    if (token == null) {
+      showError("Token not found. Please log in.");
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://127.0.0.1:8000/api/create/orders'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'first_name': firstNameController.text,
+          'last_name': lastNameController.text,
+          'address1': addressController.text,
+          'address2': '', // Optional
+          'coupon': couponController.text.isNotEmpty
+              ? int.tryParse(couponController.text)
+              : null,
+          'phone': phoneController.text,
+          'post_code': zipController.text,
+          'email': emailController.text,
+          'shipping': selectedShippingMethod != null
+              ? int.parse(selectedShippingMethod!)
+              : null,
+          'payment_method': selectedPaymentMethod == 'Credit Card'
+              ? 'paypal'
+              : 'cod',
+              'total_amount':widget.totalAmount,
+              'country':countryController.text
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        showSuccess("Order placed successfully!");
+        print('Order ID: ${responseData['order_id']}');
+        Navigator.pop(context);
+      } else {
+        final errorData = jsonDecode(response.body);
+        showError("Error: ${errorData['message']}");
+      }
+    } catch (e) {
+      showError("An error occurred: $e");
+    }
+  }
+
+  void showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(color: Colors.red)),
+      ),
+    );
+  }
+
+  void showSuccess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: const TextStyle(color: Colors.green)),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Checkout'),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView( // Wrap the body in SingleChildScrollView for scrolling
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Cart Summary
-            Text(
-              'Cart Summary',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            "Checkout",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            Divider(),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: 3, // Replace with your cart item count
-              itemBuilder: (context, index) {
-                int quantity = 2; // Example quantity, replace with dynamic data
-                double price = 20.00; // Example price, replace with actual price
-                double totalPrice = quantity * price;
-
-                return Container(
-                  height: 110,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200], 
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        height: 110,
-                        width: 100,
-                        child: Image.asset(
-                         AssetPath.appLogo, // Replace with your actual asset path
-                          height: 100,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Item ${index + 1}",
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
-                            ),
-                            Text(
-                              "\$${price.toStringAsFixed(2)} x $quantity",
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              "Total: \$${totalPrice.toStringAsFixed(2)}",
-                              style: TextStyle(fontSize: 16, color: Colors.green),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-            SizedBox(height: 16),
-            Divider(),
-
-            // Shipping Address
-            Text(
-              'Shipping Address',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Divider(),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'Enter Shipping Address',
-                  hintText: 'e.g. John Doe, 123 Main Street, New York, NY 10001',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Divider(),
-
-            // Payment Method
-            Text(
-              'Payment Method (IBAN)',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Divider(),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'Enter IBAN Number',
-                  hintText: 'e.g. DE89370400440532013000',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Divider(),
-
-            // Order Total
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ),
+          backgroundColor: Colors.orange,
+          centerTitle: true,
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(18.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Total (3 items)', // Display the number of items dynamically
-                  style: TextStyle(fontSize: 18),
+                // Order Summary
+                const Text(
+                  "Order Summary",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
                 ),
-                Text(
-                  '\$60.00', // Total amount
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                const SizedBox(height: 8),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: widget.cartItems.length,
+                  itemBuilder: (context, index) {
+                    final item = widget.cartItems[index];
+                    return Card(
+                      elevation: 3,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: ListTile(
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            "http://127.0.0.1:8000/${item['product']['photo']}",
+                            height: 50,
+                            width: 50,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        title: Text(
+                          item['product']['title'],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text("Quantity: ${item['quantity']}"),
+                        trailing: Text(
+                          "\$${item['amount']}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Total",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    Text(
+                      "\$${widget.totalAmount}",
+                      style: const TextStyle(
+                        color: Colors.orange,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                buildSectionHeader("Shipping Details"),
+                buildTextFormField(
+                  controller: firstNameController,
+                  label: "First Name",
+                  validator: "Please enter your first name",
+                ),
+                buildTextFormField(
+                  controller: lastNameController,
+                  label: "Last Name",
+                  validator: "Please enter your last name",
+                ),
+                buildTextFormField(
+                  controller: addressController,
+                  label: "Address",
+                  validator: "Please enter your address",
+                ),
+                buildTextFormField(
+                  controller: cityController,
+                  label: "City",
+                  validator: "Please enter your city",
+                ),
+                 buildTextFormField(
+                  controller: countryController,
+                  label: "Country",
+                  validator: "Please enter your Country",
+                ),
+                buildTextFormField(
+                  controller: zipController,
+                  label: "ZIP Code",
+                  keyboardType: TextInputType.number,
+                  validator: "Please enter your ZIP code",
+                ),
+                buildTextFormField(
+                  controller: phoneController,
+                  label: "Phone Number",
+                  keyboardType: TextInputType.phone,
+                  validator: "Please enter your phone number",
+                ),
+                buildTextFormField(
+                  controller: emailController,
+                  label: "Email",
+                  keyboardType: TextInputType.emailAddress,
+                  validator: "Please enter your email",
+                ),
+
+                buildTextFormField(
+                  controller: couponController,
+                  label: "Coupon Code (optional)",
+                ),
+                const SizedBox(height: 16),
+                buildSectionHeader("Shipping Method"),
+                DropdownButtonFormField<String>(
+                  value: selectedShippingMethod,
+                  items: [
+                    {"id": "1", "title": "Standard Shipping"},
+                    {"id": "2", "title": "Express Shipping"}
+                  ]
+                      .map((method) => DropdownMenuItem(
+                            value: method["id"],
+                            child: Text(method["title"]!),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedShippingMethod = value!;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null) {
+                      return "Please select a shipping method";
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                buildSectionHeader("Payment Method"),
+                DropdownButtonFormField<String>(
+                  value: selectedPaymentMethod,
+                  items: ["Credit Card", "PayPal", "Cash on Delivery"]
+                      .map((method) => DropdownMenuItem(
+                            value: method,
+                            child: Text(method),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedPaymentMethod = value!;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: submitCheckout,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      elevation: 5,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      "Submit Checkout",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
                 ),
               ],
             ),
-            SizedBox(height: 24),
-
-            // Checkout Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle checkout logic here
-                  print('Proceed to Payment');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange, // Set button background color to orange
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text(
-                  'Proceed to Payment',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.orange,
+        ),
+      ),
+    );
+  }
+
+  Widget buildTextFormField({
+    required TextEditingController controller,
+    required String label,
+    String? validator,
+    TextInputType? keyboardType,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
+        validator: validator != null
+            ? (value) {
+                if (value == null || value.isEmpty) {
+                  return validator;
+                }
+                return null;
+              }
+            : null,
       ),
     );
   }

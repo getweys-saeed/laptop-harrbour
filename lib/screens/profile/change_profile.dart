@@ -1,116 +1,7 @@
-// import 'package:flutter/material.dart';
-// import 'package:image_picker/image_picker.dart';
-
-// class ChangeProfilePage extends StatelessWidget {
-//   final ImagePicker _picker = ImagePicker();
-
-//   // Controllers for text fields (you can also pass them as arguments to this widget)
-//   final TextEditingController nameController = TextEditingController();
-//   final TextEditingController emailController = TextEditingController();
-//   final TextEditingController phoneController = TextEditingController();
-
-//   // Function to pick an image
-//   Future<void> _pickImage(BuildContext context) async {
-//     final XFile? pickedImage = await _picker.pickImage(source: ImageSource.gallery);
-//     if (pickedImage != null) {
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Change Profile'),
-//         centerTitle: true,
-//         backgroundColor: Colors.orange,
-//       ),
-//       body: SingleChildScrollView(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             // Profile Image Picker
-//             Center(
-//               child: GestureDetector(
-//                 onTap: () => _pickImage(context), // Pick image
-//                 child: CircleAvatar(
-//                   radius: 60,
-//                   backgroundColor: Colors.grey[200],
-//                   backgroundImage: AssetImage('assets/images/default_profile.png'),
-//                   child: Icon(Icons.camera_alt, color: Colors.white),
-//                 ),
-//               ),
-//             ),
-//             SizedBox(height: 20),
-
-//             // Name Field
-//             TextField(
-//               controller: nameController,
-//               decoration: InputDecoration(
-//                 labelText: 'Name',
-//                 hintText: 'Enter your name',
-//                 border: OutlineInputBorder(),
-//               ),
-//             ),
-//             SizedBox(height: 16),
-
-//             // Email Field
-//             TextField(
-//               controller: emailController,
-//               decoration: InputDecoration(
-//                 labelText: 'Email',
-//                 hintText: 'Enter your email',
-//                 border: OutlineInputBorder(),
-//               ),
-//               keyboardType: TextInputType.emailAddress,
-//             ),
-//             SizedBox(height: 16),
-
-//             // Phone Number Field
-//             TextField(
-//               controller: phoneController,
-//               decoration: InputDecoration(
-//                 labelText: 'Phone Number',
-//                 hintText: 'Enter your phone number',
-//                 border: OutlineInputBorder(),
-//               ),
-//               keyboardType: TextInputType.phone,
-//             ),
-//             SizedBox(height: 20),
-
-//             // Save Changes Button
-//             SizedBox(
-//               width: double.infinity,
-//               child: ElevatedButton(
-//                 onPressed: () {
-//                   // Handle save logic and pass back updated data
-//                   print('Name: ${nameController.text}');
-//                   print('Email: ${emailController.text}');
-//                   print('Phone: ${phoneController.text}');
-//                   // Typically you would use a state management solution here
-//                 },
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: Colors.orange, // Button color
-//                   padding: const EdgeInsets.symmetric(vertical: 16),
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(8),
-//                   ),
-//                 ),
-//                 child: Text(
-//                   'Save Changes',
-//                   style: TextStyle(fontSize: 18, color: Colors.white),
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ChangeProfilePage extends StatefulWidget {
   @override
@@ -118,33 +9,91 @@ class ChangeProfilePage extends StatefulWidget {
 }
 
 class _ChangeProfilePageState extends State<ChangeProfilePage> {
-  XFile? _pickedImage;
-  final ImagePicker _picker = ImagePicker();
-  bool _isLoading = false;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final FlutterSecureStorage storage = FlutterSecureStorage();
 
-  // Function to pick an image from the gallery
-  Future<void> _pickImage() async {
-    setState(() {
-      _isLoading = true; // Show loading indicator
-    });
+  String? profileImageUrl;
+
+  Future<Map<String, dynamic>> _fetchProfile() async {
+    // Fetch the token from secure storage
+    final token = await storage.read(key: 'auth_token');
+    if (token == null) {
+      throw Exception('Authentication token not found. Please log in again.');
+    }
+
+    final uri = Uri.parse('http://127.0.0.1:8000/api/profile');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    final response = await http.get(uri, headers: headers);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body)['data'];
+      return data;
+    } else {
+      throw Exception('Failed to fetch profile data. HTTP status: ${response.statusCode}');
+    }
+  }
+
+  Future<void> _updateProfile({required String name, required String email}) async {
+    final token = await storage.read(key: 'auth_token');
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Authentication token not found. Please log in again.')),
+      );
+      return;
+    }
+
+    final uri = Uri.parse('http://127.0.0.1:8000/api/profileUpdate');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    final body = json.encode({'name': name, 'email': email});
 
     try {
-      final XFile? pickedImage =
-          await _picker.pickImage(source: ImageSource.gallery, maxWidth: 512, maxHeight: 512);
-
-      if (pickedImage != null) {
-        setState(() {
-          _pickedImage = pickedImage;
-        });
+      final response = await http.put(uri, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Profile updated successfully!')),
+        );
       } else {
-        print('No image selected.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update profile. HTTP status: ${response.statusCode}')),
+        );
       }
     } catch (e) {
-      print('Error picking image: $e');
-    } finally {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating profile: $e')),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  void _loadProfile() async {
+    try {
+      final profile = await _fetchProfile();
       setState(() {
-        _isLoading = false; // Hide loading indicator
+        _nameController.text = profile['name'] ?? '';
+        _emailController.text = profile['email'] ?? '';
+        profileImageUrl = profile['photo'] != null
+            ? 'http://127.0.0.1:8000/${profile['photo']}'
+            : null;
       });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading profile: $e')),
+      );
     }
   }
 
@@ -152,65 +101,67 @@ class _ChangeProfilePageState extends State<ChangeProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Change Profile'),
+        title: const Text('Change Profile'),
         centerTitle: true,
         backgroundColor: Colors.orange,
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Profile Image
-            GestureDetector(
-              onTap: _pickImage,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.grey[300],
-                    backgroundImage: _pickedImage != null
-                        ? FileImage(File(_pickedImage!.path))
-                        : null,
-                    child: _pickedImage == null
-                        ? Icon(Icons.camera_alt, size: 30, color: Colors.white)
-                        : null,
-                  ),
-                  if (_isLoading)
-                    CircularProgressIndicator(), // Show loading indicator while image is being picked
-                ],
+            if (profileImageUrl != null)
+              ClipOval(
+                child: Image.network(
+                  profileImageUrl!,
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.error, size: 100, color: Colors.grey);
+                  },
+                ),
+              )
+            else
+              const CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.grey,
+                child: Icon(Icons.person, size: 50, color: Colors.white),
               ),
-            ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Profile Name
             TextField(
-              decoration: InputDecoration(
+              controller: _nameController,
+              decoration: const InputDecoration(
                 labelText: 'Name',
                 hintText: 'Enter your name',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-            // Email or other details
+            // Email
             TextField(
-              decoration: InputDecoration(
+              controller: _emailController,
+              decoration: const InputDecoration(
                 labelText: 'Email',
                 hintText: 'Enter your email',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Save Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Handle save logic
-                  print('Profile Saved');
+                  _updateProfile(
+                    name: _nameController.text,
+                    email: _emailController.text,
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -219,7 +170,7 @@ class _ChangeProfilePageState extends State<ChangeProfilePage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Save Profile',
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
