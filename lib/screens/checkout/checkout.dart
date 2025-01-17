@@ -22,13 +22,44 @@ class _CheckoutPageState extends State<CheckoutPage> {
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
   final TextEditingController cityController = TextEditingController();
-    final TextEditingController countryController = TextEditingController();
+  final TextEditingController countryController = TextEditingController();
   final TextEditingController zipController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController couponController = TextEditingController();
   String? selectedShippingMethod;
   String? selectedPaymentMethod = "Credit Card";
+
+  List<Map<String, String>> shippingMethods = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchShippingMethods();
+  }
+
+  Future<void> fetchShippingMethods() async {
+    try {
+      final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/shipment'));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          shippingMethods = data
+              .map((shipment) => {
+                    "id": shipment["id"].toString(),
+                    "type": shipment["type"].toString(),
+                  })
+              .cast<Map<String, String>>()
+              .toList();
+        });
+      } else {
+        showError("Failed to fetch shipping methods.");
+      }
+    } catch (e) {
+      showError("An error occurred while fetching shipping methods: $e");
+    }
+  }
 
   Future<String?> getToken() async {
     return await storage.read(key: 'auth_token');
@@ -70,8 +101,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
           'payment_method': selectedPaymentMethod == 'Credit Card'
               ? 'paypal'
               : 'cod',
-              'total_amount':widget.totalAmount,
-              'country':countryController.text
+          'total_amount': widget.totalAmount,
+          'country': countryController.text
         }),
       );
 
@@ -127,7 +158,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Order Summary
                 const Text(
                   "Order Summary",
                   style: TextStyle(
@@ -212,7 +242,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   label: "City",
                   validator: "Please enter your city",
                 ),
-                 buildTextFormField(
+                buildTextFormField(
                   controller: countryController,
                   label: "Country",
                   validator: "Please enter your Country",
@@ -244,18 +274,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 buildSectionHeader("Shipping Method"),
                 DropdownButtonFormField<String>(
                   value: selectedShippingMethod,
-                  items: [
-                    {"id": "1", "title": "Standard Shipping"},
-                    {"id": "2", "title": "Express Shipping"}
-                  ]
-                      .map((method) => DropdownMenuItem(
+                  items: shippingMethods
+                      .map((method) => DropdownMenuItem<String>(
                             value: method["id"],
-                            child: Text(method["title"]!),
+                            child: Text(method["type"]!),
                           ))
                       .toList(),
                   onChanged: (value) {
                     setState(() {
-                      selectedShippingMethod = value!;
+                      selectedShippingMethod = value;
                     });
                   },
                   decoration: const InputDecoration(
@@ -280,7 +307,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       .toList(),
                   onChanged: (value) {
                     setState(() {
-                      selectedPaymentMethod = value!;
+                      selectedPaymentMethod = value;
                     });
                   },
                   decoration: const InputDecoration(

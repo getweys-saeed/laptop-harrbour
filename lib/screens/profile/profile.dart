@@ -18,6 +18,10 @@ class ProfileWidget extends StatelessWidget {
     // Read token from secure storage
     final token = await storage.read(key: 'auth_token');
 
+    if (token == null) {
+      throw Exception("Token not found");
+    }
+
     // Make the API request
     final response = await http.get(
       Uri.parse(url),
@@ -54,11 +58,10 @@ class ProfileWidget extends StatelessWidget {
               } else {
                 // Extract user data from snapshot
                 final userData = snapshot.data!;
-                final String name = userData['name'] ?? 'No Name';
+                final String name = userData['name']?.toString() ?? 'No Name';
                 final String base = "http://127.0.0.1:8000/";
-                final String email = userData['email'] ?? 'No Email';
-                final String profileImage =
-                    userData['photo'] ?? userData['photo'];
+                final String email = userData['email']?.toString() ?? 'No Email';
+                final String profileImage = userData['photo']?.toString() ?? 'default.png';
 
                 return Column(
                   children: [
@@ -67,7 +70,7 @@ class ProfileWidget extends StatelessWidget {
                       height: 50,
                       width: 50,
                       errorBuilder: (context, error, stackTrace) {
-                        return Icon(Icons.error);
+                        return const Icon(Icons.error);
                       },
                     ),
                     const SizedBox(height: 10),
@@ -111,54 +114,47 @@ class ProfileWidget extends StatelessWidget {
                       "Logout",
                       Icons.logout,
                       null,
-                     // Updated Logout onTap method
-onTap: () async {
-  final storage = FlutterSecureStorage();
-  const url = 'http://127.0.0.1:8000/api/logout'; // Replace with your API logout endpoint
+                      onTap: () async {
+                        final storage = FlutterSecureStorage();
+                        const url =
+                            'http://127.0.0.1:8000/api/logout'; // Replace with your API logout endpoint
 
-  try {
-    // Fetch token from secure storage
-    final token = await storage.read(key: 'auth_token');
+                        try {
+                          // Fetch token from secure storage
+                          final token = await storage.read(key: 'auth_token');
 
-    // If the token exists, make a request to log out the user from the backend
-    if (token != null) {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      );
+                          // If the token exists, make a request to log out the user from the backend
+                          if (token != null) {
+                            final response = await http.post(
+                              Uri.parse(url),
+                              headers: {
+                                'Authorization': 'Bearer $token',
+                              },
+                            );
 
-      if (response.statusCode == 200) {
-        // Successful logout from the backend, delete token from secure storage
-        await storage.delete(key: 'auth_token');
-        // Close the app after logging out
-    
-
-        // After popping, push the login page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-      } else {
-        // Handle failure in logout request
-        print('Failed to logout from server. Status code: ${response.statusCode}');
-        // Optionally show a message to the user that logout failed
-      }
-    } else {
-      // If there's no token, just close the app
-          Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
-    }
-  } catch (e) {
-    // Handle any errors that might occur while calling the API
-    print('Error logging out: $e');
-    // Optionally show an error message to the user
-  }
-},
-
+                            if (response.statusCode == 200) {
+                              // Successful logout from the backend, delete token from secure storage
+                              await storage.delete(key: 'auth_token');
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LoginPage()),
+                              );
+                            } else {
+                              print(
+                                  'Failed to logout from server. Status code: ${response.statusCode}');
+                            }
+                          } else {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LoginPage()),
+                            );
+                          }
+                        } catch (e) {
+                          print('Error logging out: $e');
+                        }
+                      },
                     ),
                   ],
                 );
